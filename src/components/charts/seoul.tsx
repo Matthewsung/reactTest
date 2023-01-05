@@ -8,9 +8,19 @@ import {
   ZAxis, TooltipProps,
 } from 'recharts'
 import { ValueType, NameType } from 'recharts/src/component/DefaultTooltipContent';
+import styled from 'styled-components'
 const mapURL = '/seoul_map.svg'
-// const mapURL = '/SEOUL_SIG'
-type MouseEventType = MouseEvent<HTMLElement>
+
+const CustomTooltipStyled = styled.div`
+  background: #fff;
+  padding: 4px 12px 12px;
+  border: 1px solid #ddd;
+  
+  .store {
+    color: #ff00ff;
+  }
+`
+
 const SeoulMap = () => {
   const data = [
     {x:256  , y: 192 , value:10, store:'사당점'},
@@ -35,12 +45,12 @@ const SeoulMap = () => {
       value = storeValue.payload.value
     })
 
-    return <div style={{background:'#fff', padding: '4px 12px 12px'}}>
-      <h3>{ store }</h3>
+    return <CustomTooltipStyled>
+      <div className={'store'}>{ store }</div>
       <div>
         { `판매량 : ${value}` }
       </div>
-    </div>
+    </CustomTooltipStyled>
   }
 
   return <div style={{width: '800px', height: '500px', background: `no-repeat center/contain url(${mapURL})`, position: 'relative'}}>

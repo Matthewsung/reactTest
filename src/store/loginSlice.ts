@@ -11,7 +11,7 @@ const LoginSlice = createSlice({
   initialState,
   reducers: {
     saveToken: (state:loginState, action:PayloadAction<string>) => {
-      const {payload} = action
+      const { payload } = action
       state.token = payload
     }
   }

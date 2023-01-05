@@ -6,7 +6,7 @@ const CompareChartComponents:React.FC<{
   chartData: reduxBranchesType[]
 }> = (props) => {
 
-  return <BarChart data={props.chartData} width={800} height={400} >
+  return <BarChart data={props.chartData} width={800} height={400} margin={{ top: 24, right: 4, bottom: 0, left: 4 }}>
     <Bar dataKey={'value'} fill={'#67d06f'} barSize={35} />
     <XAxis dataKey={'store'}/>
     <YAxis dataKey={'value'}/>
