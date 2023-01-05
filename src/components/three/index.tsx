@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import {Canvas, useFrame, useLoader,  } from '@react-three/fiber'
+import {Canvas, useFrame, useLoader, LoaderProto, Loader } from '@react-three/fiber'
 import {OrbitControls, Plane, PerspectiveCamera, CubeCamera, useTexture, } from "@react-three/drei";
 
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader'

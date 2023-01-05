@@ -5,6 +5,7 @@ import ThreeComponent from '@/components/three'
 import ChartPage from '@/components/charts'
 import JWTComponent from '@/components/jwt'
 import SeoulMap from '@/components/charts/seoul'
+import ListComponent from "@/components/list/list";
 function App() {
 
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path='chart' element={<ChartPage />} />
         <Route path='jwt' element={<JWTComponent />} />
         <Route path='seoul' element={<SeoulMap />} />
+        <Route path='list' element={<ListComponent />} />
       </Route>
     </Routes>
   )

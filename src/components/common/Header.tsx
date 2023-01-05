@@ -8,6 +8,7 @@ const HeaderComponent = () => {
     {path: '/chart', name: 'chart'},
     {path: '/jwt', name: 'JWT'},
     {path: '/seoul', name: 'Map'},
+    {path: '/list', name: 'List'},
 
   ]
 
