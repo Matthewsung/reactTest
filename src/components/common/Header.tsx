@@ -9,6 +9,7 @@ const HeaderComponent = () => {
     {path: '/jwt', name: 'JWT'},
     {path: '/seoul', name: 'Map'},
     {path: '/list', name: 'List'},
+    {path: '/transfer', name: 'Transfer'},
 
   ]
 

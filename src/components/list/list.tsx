@@ -7,13 +7,16 @@ import {
   TableCell,
   Checkbox,
   TablePagination,
+  Pagination,
+  PaginationProps,
   TableCellProps,
-  TablePaginationBaseProps
+
 } from '@mui/material'
 import React, {useEffect, useMemo, useState} from "react";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { getStoreData, reduxBranchesType } from '@/store/listSlice'
 import CompareChartComponents from "@/components/list/CompareChart";
+import styled from "styled-components";
 
 
 const ListComponent = () => {
@@ -21,7 +24,7 @@ const ListComponent = () => {
   const { branches } = useAppSelector((store) => store?.list)
   const [selectedStore, setSelectedStore] = useState<reduxBranchesType[]>([])
   const [pagination, setPagination] = useState(0)
-  const [perPage, setPerPage] = useState(5)
+  const [perPage, setPerPage] = useState(10)
 
   useMemo(() => dispatch(getStoreData()), [dispatch]);
 
@@ -51,7 +54,7 @@ const ListComponent = () => {
     setSelectedStore([...newStore, branch ])
   }
   const handlePageMove = (event: unknown, newPage:number) => {
-    setPagination(newPage)
+    setPagination(newPage - 1)
   }
   const handleChangePerPage = (event: React.ChangeEvent<HTMLInputElement>, ) => {
     setPerPage(parseInt(event.target.value,10))
@@ -102,16 +105,25 @@ const ListComponent = () => {
           </TableBody>
         </Table>
       </TableContainer>
-      <TablePagination
-        component={'div'}
-        count={ branches.length } //page 개수
-        onPageChange={handlePageMove}
-        onRowsPerPageChange={handleChangePerPage}
-        page={pagination} //보여줄 현재 페이지
-        rowsPerPage={perPage} //페이지당 보여줄 리스트 개수
-        rowsPerPageOptions={[ 5, 10 ]} // 페이지당 보여줄 리스트 조건
-        labelDisplayedRows={({ page}) => page + 1 }
-        labelRowsPerPage={''}
+      {/*<TablePagination*/}
+      {/*  component={'div'}*/}
+      {/*  count={ branches.length } //page 개수*/}
+      {/*  onPageChange={handlePageMove}*/}
+      {/*  onRowsPerPageChange={handleChangePerPage}*/}
+      {/*  page={pagination} //보여줄 현재 페이지*/}
+      {/*  rowsPerPage={perPage} //페이지당 보여줄 리스트 개수*/}
+      {/*  rowsPerPageOptions={[ 5, 10 ]} // 페이지당 보여줄 리스트 조건*/}
+      {/*  labelDisplayedRows={({ page}) => page + 1 }*/}
+      {/*  labelRowsPerPage={''}*/}
+      {/*/>*/}
+      <StyledPagination
+        count={ Math.ceil( branches.length / perPage) }
+        variant={'outlined'}
+        shape={'rounded'}
+        color={'primary'}
+        showFirstButton
+        showLastButton
+        onChange={handlePageMove}
       />
       {selectedStore.length > 0 && <CompareChartComponents chartData={selectedStore}/>}
     </>
@@ -124,3 +136,11 @@ const StyledTableCell:React.FC<TableCellProps> = (props) => {
     {props.children}
   </TableCell>
 }
+
+const StyledPagination = styled(Pagination)`
+  margin: 12px 0;
+  
+  .MuiPagination-ul {
+    justify-content: center;
+  }
+`
