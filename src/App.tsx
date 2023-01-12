@@ -7,6 +7,7 @@ import JWTComponent from '@/components/jwt'
 import SeoulMap from '@/components/charts/seoul'
 import ListComponent from "@/components/list/list";
 import TransferPage from "@/components/transferlist";
+import CustomPage from "@/components/custom";
 function App() {
 
   return (
@@ -18,6 +19,9 @@ function App() {
         <Route path='seoul' element={<SeoulMap />} />
         <Route path='list' element={<ListComponent />} />
         <Route path='transfer' element={<TransferPage />} />
+        <Route path='custom' element={<CustomPage />} >
+          <Route path=':cat_idx' element={<CustomPage />} />
+        </Route>
 
       </Route>
     </Routes>
