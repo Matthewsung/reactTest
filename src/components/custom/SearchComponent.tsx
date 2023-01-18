@@ -77,25 +77,6 @@ const SearchComponent:React.FC<{
         <Button variant={'outlined'} color={'inherit'} fullWidth onClick={props.testClick} sx={{background:"#fff"}}>찾기</Button>
       </Grid>
     </Grid>
-    <Paper>
-      <Autocomplete
-        multiple
-        renderInput={ (params) => (
-          <TextField {...params} placeholder={'검색어 입력'} size={'small'} />
-        )}
-        options={autoOption}
-        getOptionLabel={(option) => option.value}
-        renderTags={
-          ( value, getTagProps) => (
-            value.map((option, index) => <Chip {...getTagProps({ index })} label={option.value} variant={'outlined'} color={'primary'} /> )
-          )
-        }
-        onChange={(event, value)=> { console.log(value) }}
-        groupBy={option => {
-          return option.id < 3 ? '1번': '2번'
-        } }
-      />
-    </Paper>
   </>
 }
 export default SearchComponent

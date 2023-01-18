@@ -1,135 +1,289 @@
-import React, {useEffect, useState} from "react";
-import {DragDropContext, Draggable, Droppable} from 'react-beautiful-dnd';
-import {List, ListItem, Container, Grid} from "@mui/material";
+import React, {
+  ChangeEvent,
+  SetStateAction,
+  SyntheticEvent,
+  useRef,
+  useState
+} from "react";
+import {
+  DragDropContext,
+  Draggable,
+  Droppable,
+  DropResult,
+} from 'react-beautiful-dnd';
+import {
+  List,
+  ListItem,
+  Grid,
+  Button, ListItemText,
+  Checkbox, FormControl, FormControlLabel,
+} from "@mui/material";
 import styled from "styled-components";
-type IList = {
-  id:number,
-  text: string
+
+type IMenu = {
+  id: number,
+  name: string,
+  check: boolean
+
 }
 type IBox = {
-  id: string
+  title: string,
+  items: never | IMenu[],
+  check: boolean
 }
+
 const DragdropComponent = () => {
-  const boxList:IBox[] = [
-    {id:'listItem'},
-    {id:'resultItem'},
-    {id:'otherItem'},
-  ]
-  const [lists, setLists] = useState<{
-    listItem: IList[] ,
-    resultItem: IList[] ,
-    otherItem: [],
-  }>({
-    listItem: [
-      {id: 1, text: 'wait'},
-      {id: 2, text: 'shake'},
-      {id: 3, text: 'wait'},
-      {id: 4, text: 'shake'},
-      {id: 5, text: 'output'},
+  const menuList = {
+    title: '메뉴',
+    items : [
+      {id: 1, name: '롸버트 후라이드',check:false},
+      {id: 2, name: '롸버트 양념',check:false},
+      {id: 3, name: '(반반) 후라+양념',check:false},
+      {id: 4, name: '치즈볼',check:false},
     ],
-    resultItem: [],
-    otherItem: [],
+  }
+
+  const [testColumns, setTestColumns] = useState<{[key:string]:IBox}>({
+    box_1: {
+      title: '가맹',
+      items: [
+        {id: 1, name: '롸버트 후라이드', check: false},
+      ],
+      check: false
+    },
+    box_2: {
+      title: '지점',
+      items: [
+        {id: 2, name: '롸버트 양념', check: true},
+      ],
+      check:true
+    }
   })
-useEffect(() => {console.log(lists)})
+  const handleCopyGroup = () => {
+    console.log('그룹 복제해서 더하기')
+  }
+  const handleAddGroup = () => {
+    const index = Object.keys(testColumns).length + 1
+    const getTitle = prompt('타이틀 입력')
+    const newTestColumn = {
+      ...testColumns,
+      [`box_${index}`]: {title: getTitle,items: [], check: false}} as {[key: string]: IBox
+    }
 
-  const handleDragEnd = (result:any) => {
-    console.log(result)
-    const { destination, source, draggableId } = result
-    if(!destination) { return }
+    setTestColumns(newTestColumn)
+  }
+  const handleRemoveGroup = () => {
+    console.log('그룹 빼기')
+    let newData = {...testColumns}
+    let index = Object
+      .keys(newData)
+      .map((key, idx) => {
+        if(newData[key].check) {
+          return idx
+        }
+      })
 
-    let newList = [...lists[source.droppableId]]
-    let targetDestination = [...lists[destination.droppableId]]
-    const targetList = lists.listItem[source.index]
+    console.log(index)
+  }
 
+  const handleDragEnd = (value: DropResult) => {
+    if(!value.destination) return ;
+    const { source, destination } = value
+    const targetBox = destination?.droppableId
+    const targetData = testColumns[targetBox]
+    // menuList 내에서 이동시 불가
+    if(source.droppableId === destination?.droppableId && source.droppableId === 'menuList') {
+      return alert('불가')
+    }
+    // 아이템 빼기
+    else if(destination?.droppableId === 'menuList') {
+      testColumns[source.droppableId].items.splice(source.index,1)
 
-    if(destination.droppableId === source.droppableId) {
-      newList.splice(source.index,1)
-      newList.splice(destination.index,0,targetList)
-      setLists({...lists, ['listItem'] : newList })
-    } else {
-      let test = {
-        [source.droppableId]: newList,
-        [destination.droppableId] : targetDestination
-      }
-      targetDestination.push(targetList)
-      setLists({...lists ,...test})
+      return alert('빼기 성공')
+    }
+    // 각자의 box에서는 이동 불가
+    else if(source.droppableId === destination?.droppableId) {
+      return alert('같은 리스트입니다')
+    }
+    else if(source.droppableId !== 'menuList' ) {
+      return alert('각각의 box끼리는 이동이 불가')
+    }
+    const checkData = targetData.items.filter((item: IMenu) => item.id === menuList.items[source.index].id)
+
+    if(!checkData.length) {
+      targetData.items.push(menuList.items[source.index])
+      // 순서 정렬
+      targetData.items.sort((prev, cur) =>  prev.id - cur.id)
+      setTestColumns({...testColumns, [targetBox]: targetData})
     }
   }
 
-  return (
-    <div>
-      <h1>drag & drop</h1>
-      <Grid container spacing={2} gap={2}>
-          <DragDropContext onDragEnd={ handleDragEnd }>
+  const handleCheckBox = (event:SyntheticEvent, checked:boolean, idx1:number, idx2:number | boolean) => {
+    const { value } = event.target as HTMLInputElement
+    let newData = {...testColumns}
+    let checkCount = 0
+
+    if(typeof idx2 === "boolean") {
+      newData[value].check = checked
+      newData[value].items.map((item, index) => {
+        if(checked){
+          item.check = true
+        }
+        else {
+          item.check = false
+        }
+        return item
+      })
+    }
+    else {
+      newData[value].items.map((item, index) => {
+        if(index === idx2) {
+          item.check = checked
+        }
+        item.check? checkCount++ : checkCount
+        !checkCount ? newData[value].check = false : newData[value].check = true
+        return item
+      })
+    }
+    setTestColumns(newData)
+  }
+
+  return <>
+    <DragDropContext onDragEnd={handleDragEnd} >
+      <Grid container gap={2} marginTop={3} alignItems={'center'}>
+        <CustomBox item>
+          <List disablePadding>
+            <ListItem>
+              <ListItemText>#</ListItemText>
+              <ListItemText sx={{flex: '3 1 auto'}}>
+                { menuList.title }
+              </ListItemText>
+            </ListItem>
+          </List>
+          <Droppable droppableId={'menuList'} >
             {
-              boxList.map((box, idx) => (
-                <Grid item key={`${box.id}_${idx}`} >
-                  <div>{box.id}</div>
-                  <Droppable droppableId={box.id}  >
-                    {(provided,snapshot) => (
-                      <CustomBox
-                        ref={provided.innerRef}
-                        {...provided.droppableProps}
-                        isDraggingOver={snapshot.isDraggingOver}
+              (provided, snapshot) => (
+                <List
+                  ref={provided.innerRef}
+                  {...provided.droppableProps}
+                >
+                  {
+                    menuList.items.map((menu, index) => (
+                      <Draggable
+                        draggableId={`menuList_${menu.id}`}
+                        index={index}
+                        key={`menuList_${menu.name}`}
                       >
                         {
-                          lists[box.id].map((list, idx1) => (
-                            <Draggable
-                              draggableId={`draggableItem_${list.id}`}
-                              index={idx1}
-                              key={`${box.id}_${list.id}`}
+                          (provided, snapshot) => (
+                            <ListItem
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                              sx={{
+                                padding: '4px 8px',
+                                margin: '4px 0',
+                                border: '1px solid #ddd',
+                                borderRadius: '8px',
+                                background: '#f1eddc'
+                              }}
                             >
-                              {(provided,snapshot) => (
-                                <CustomList
-                                  {...provided.draggableProps}
-                                  ref={provided.innerRef}
-                                  isDragging={snapshot.isDragging}
-                                >
-                                  <CustomHandler {...provided.dragHandleProps} />
-                                  <span>
-                                {list.text}
-                              </span>
-                                </CustomList>
-                              )}
-                            </Draggable>
-                          ))
+                              <ListItemText>{menu.id}</ListItemText>
+                              <ListItemText sx={{flex: '3 1 auto'}}>{menu.name}</ListItemText>
+                            </ListItem>
+                          )
                         }
-                        {provided.placeholder}
-                      </CustomBox>
-                    )}
+                      </Draggable>
+                    ))
+                  }
+                  {provided.placeholder}
+                </List>
+              )
+            }
+          </Droppable>
+        </CustomBox>
+        <CustomBox item >
+          <div style={{textAlign: 'right', marginBottom: '8px'}}>
+            <Button variant={'outlined'} onClick={handleCopyGroup}>그룹복제</Button>
+          </div>
+          <Grid
+            container
+            direction={'column'}
+          >
+            {
+              Object.entries(testColumns).map(([itemKey, itemValue], idx1) => (
+                <Grid item key={itemKey}  sx={{background: '#efe4c8', border: '1px solid #fff', padding: '8px 20px', margin: '4px 0'}}>
+                  <Droppable droppableId={itemKey}>
+                    {
+                      (provided,snapshot) => (
+                        <Grid ref={provided.innerRef} {...provided.droppableProps}>
+                          <FormControl>
+                            <FormControlLabel
+                              control={ <Checkbox/> }
+                              label={itemValue.title}
+                              checked={itemValue.check}
+                              value={itemKey || ""}
+                              onChange={(event, checked) => handleCheckBox(event, checked, idx1, false)}
+                            />
+                          </FormControl>
+                          <List>
+                            {
+                              itemValue.items.map((value, idx2)=> (
+                                <Draggable
+                                  draggableId={`${value.name}_${idx1}`}
+                                  index={idx2}
+                                  key={`itemKey_${itemValue.title}_${idx2}`}>
+                                  {
+                                    (provided, snapshot) => (
+                                      <ListItem
+                                        ref={provided.innerRef}
+                                        {...provided.draggableProps}
+                                        {...provided.dragHandleProps}
+                                      >
+                                       <FormControl>
+                                         <FormControlLabel
+                                           control={<Checkbox />}
+                                           label={value.name}
+                                           checked={value.check}
+                                           value={itemKey || ""}
+                                           onChange={(event:SyntheticEvent, checked) => handleCheckBox(event, checked, idx1, idx2)}
+                                         />
+                                       </FormControl>
+                                      </ListItem>
+
+                                    )
+                                  }
+                                </Draggable>
+                              ))
+                            }
+                          </List>
+                          {provided.placeholder}
+                        </Grid>
+                      )
+                    }
                   </Droppable>
                 </Grid>
               ))
             }
-
-          </DragDropContext>
+          </Grid>
+          <Grid container gap={1} justifyContent={'flex-end'} marginTop={1}>
+            <Grid item>
+              <Button variant={'outlined'} onClick={handleAddGroup}>+</Button>
+            </Grid>
+            <Grid item>
+              <Button variant={'outlined'} type={'submit'} onClick={handleRemoveGroup}>-</Button>
+            </Grid>
+          </Grid>
+        </CustomBox>
       </Grid>
-    </div>
-  )
+    </DragDropContext>
+  </>
 }
 export default DragdropComponent
-
-const CustomBox = styled.div`
-  width: 250px;
-  height: fit-content;
-  min-height: 250px;
-  border: 1px solid #ddd;
+const CustomBox = styled(Grid)`
+  width: 300px;
+  min-height: 300px;
   padding: 8px;
-  background: #fff;
-`
-const CustomList = styled.div`
-  width: 100%;
-  border: 1px solid #ccc;
-  padding: 8px;
-  margin: 8px 0;
-  text-align: center;
-  background: ${props => props.isDragging? '#ff0078': '#ffff78'};
-  display: flex;
-  gap: 8px;
-  align-items: center;
-`
-const CustomHandler = styled.div`
-  width: 20px;
-  height: 20px;
-  background: #ff00ff;
+  background: #e1e1e1;
+  border-radius: 12px;
 `

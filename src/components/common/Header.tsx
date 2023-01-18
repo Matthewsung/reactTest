@@ -11,6 +11,7 @@ const HeaderComponent = () => {
     {path: '/list', name: 'List'},
     {path: '/transfer', name: 'Transfer'},
     {path: '/custom', name: 'Custom'},
+    {path: '/branch', name: 'Branch'},
 
   ]
 
@@ -21,7 +22,8 @@ const HeaderComponent = () => {
         display: 'flex',
         gap: '8px',
         padding: '16px 0',
-        borderBottom: '1px solid #ddd'
+        borderBottom: '1px solid #ddd',
+        flexWrap:'wrap'
       }}
     >
     { menuName.map((menu, idx) => (

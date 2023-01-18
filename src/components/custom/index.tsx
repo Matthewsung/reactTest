@@ -19,6 +19,8 @@ import LocationComponent from "@/components/custom/LocationComponent";
 import SearchComponent from "@/components/custom/SearchComponent";
 import DatepickerComponent from "@/components/custom/datepicker";
 import SelectComponent from "@/components/custom/SelectComponent";
+import BadgeComponent from "@/components/custom/BadgeComponent";
+import TabComponent from "@/components/custom/TabComponent";
 
 type ISearchOption = string | undefined
 
@@ -83,6 +85,14 @@ const CustomPage = () => {
         options={selectOptions}
         onChangeSelect={handleChangeSelect}
       />
+    </Paper>
+
+    <Paper sx={{padding: '12px 16px', marginBottom: '8px'}}>
+      <BadgeComponent />
+    </Paper>
+
+    <Paper sx={{padding: '12px 16px', marginBottom: '8px'}}>
+      <TabComponent />
     </Paper>
   </>
 }

@@ -8,6 +8,7 @@ import SeoulMap from '@/components/charts/seoul'
 import ListComponent from "@/components/list/list";
 import TransferPage from "@/components/transferlist";
 import CustomPage from "@/components/custom";
+import BranchPage from "@/components/branches";
 function App() {
 
   return (
@@ -22,6 +23,7 @@ function App() {
         <Route path='custom' element={<CustomPage />} >
           <Route path=':cat_idx' element={<CustomPage />} />
         </Route>
+        <Route path='branch' element={<BranchPage />} />
 
       </Route>
     </Routes>

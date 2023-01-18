@@ -1,13 +1,13 @@
 import React, {
+  ChangeEvent,
   FormEvent,
-  MutableRefObject,
-  RefAttributes,
-  RefObject,
-  useRef
+  MutableRefObject, useEffect,
+  useRef,
+  useState
 } from "react";
 import {
-  Button,
-  FormControl, FormControlLabel,
+  Button, Checkbox,
+  FormControl, FormControlLabel, Grid,
   InputLabel,
   ListSubheader,
   MenuItem, Radio, RadioGroup,
@@ -22,12 +22,46 @@ type Ioptions = {
   text: string
 }
 const SelectComponent:React.FC<SelectProps> = (props) => {
-  const radioRef = useRef<HTMLInputElement>();
+  const radioRef = useRef() as MutableRefObject<HTMLInputElement>;
   const test = useRadioGroup()
   const handleSubmit = (e:FormEvent)=> {
     e.preventDefault()
     console.log(radioRef.current)
   }
+
+  const handleChangeChkBox = (event:ChangeEvent<HTMLInputElement>) => {
+    const targetValue = event.target.value
+    const targetChecked = event.target.checked
+    const targetIndex = checkboxOption.findIndex((option)=> option.value === targetValue)
+    let newDisableCat = [...disableCat]
+
+    if((newDisableCat[0] && targetIndex === 1) || (newDisableCat[1] && targetIndex === 0)) {
+      return alert('뼈, 순살 중 하나만')
+    } else if ((targetIndex === 0 || targetIndex === 1) && (newDisableCat[2] ||newDisableCat[3] || newDisableCat[4])) {
+      return alert('윙 봉 다리 선택중 뼈나 순살 선택 불가')
+    } 
+
+    newDisableCat[targetIndex] = targetChecked
+    if(newDisableCat[2] && !newDisableCat[3] && newDisableCat[4]) {
+      newDisableCat = checkboxOption.map(option => false)
+      alert('윙 다리만 선택 불가')
+    } else if(!newDisableCat[2] && newDisableCat[3] && newDisableCat[4]) {
+      newDisableCat = checkboxOption.map(option => false)
+      alert('봉 다리만 선택 불가')
+    }
+
+    setDisableCat(newDisableCat)
+  }
+
+  const checkboxOption = [
+    {id: 1, value: '뼈', label: '뼈'},
+    {id: 2, value: '순살', label: '순살'},
+    {id: 3, value: '윙', label: '윙'},
+    {id: 4, value: '봉', label: '봉'},
+    {id: 5, value: '다리', label: '다리'},
+  ]
+  const [disableCat, setDisableCat] = useState(checkboxOption.map(option => false));
+
   return <>
     <div style={{marginBottom: '16px'}}>-select-</div>
     <FormControl fullWidth >
@@ -61,6 +95,28 @@ const SelectComponent:React.FC<SelectProps> = (props) => {
       </RadioGroup>
     </FormControl>
     <Button type={'submit'} variant={'outlined'} onClick={handleSubmit}>제출</Button>
+    <FormControl onChange={handleChangeChkBox}>
+      <RadioGroup >
+        {
+          checkboxOption.map((option,idx) => (
+            <FormControlLabel
+              control={<Checkbox value={option.value} checked={disableCat[idx]} disabled={idx > 1 && (disableCat[0] || disableCat[1])}/>}
+              label={option.label}
+              key={`formCheckbox_${option.label}`}
+            />
+          ))
+        }
+        {/*<FormControlLabel control={<Checkbox name={'checkbox_1'} value={'순살'} />} label={'순살'} />*/}
+        {/*<FormControl disabled={disableCat === '뼈' || disableCat === '순살'} >*/}
+        {/*  <FormControlLabel control={<Checkbox value={'윙'} />  } label={'윙'} />*/}
+        {/*  <FormControlLabel control={<Checkbox value={'봉'} /> } label={'봉'} />*/}
+        {/*  <FormControlLabel control={<Checkbox value={'다리'} /> } label={'다리'} />*/}
+        {/*</FormControl>*/}
+
+      </RadioGroup>
+
+
+    </FormControl>
   </>
 }
 
