@@ -63,27 +63,31 @@ const DragdropComponent = () => {
     console.log('그룹 복제해서 더하기')
   }
   const handleAddGroup = () => {
-    const index = Object.keys(testColumns).length + 1
-    const getTitle = prompt('타이틀 입력')
-    const newTestColumn = {
-      ...testColumns,
-      [`box_${index}`]: {title: getTitle,items: [], check: false}} as {[key: string]: IBox
-    }
-
-    setTestColumns(newTestColumn)
+    // const index = Object.keys(testColumns).length + 1
+    // const getTitle = prompt('타이틀 입력')
+    // const newTestColumn = {
+    //   ...testColumns,
+    //   [`box_${index}`]: {title: getTitle,items: [], check: false}} as {[key: string]: IBox
+    // }
+    //
+    // setTestColumns(newTestColumn)
   }
   const handleRemoveGroup = () => {
-    console.log('그룹 빼기')
-    let newData = {...testColumns}
-    let index = Object
-      .keys(newData)
-      .map((key, idx) => {
-        if(newData[key].check) {
-          return idx
-        }
-      })
-
-    console.log(index)
+    // console.log('그룹 빼기')
+    // let newData = {...testColumns}
+    // // let index = Object
+    // //   .keys(newData)
+    // //   .map((key, idx) => {
+    // //     if(newData[key].check) {
+    // //       return idx
+    // //     }
+    // //   })
+    // //
+    // // console.log(index)
+    // console.log(newData)
+    // const checkedIndex = Object.values(newData).findIndex(value => value.check)
+    // console.log(checkedIndex)
+    // console.log(newData[0])
   }
 
   const handleDragEnd = (value: DropResult) => {

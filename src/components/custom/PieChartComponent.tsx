@@ -4,11 +4,17 @@ import {
   Cell,
   Legend,
   ResponsiveContainer,
-  PieLabelRenderProps,
+  PieLabelRenderProps, Tooltip, TooltipProps,
 } from "recharts";
-import React, {useMemo} from "react";
-import styled from "styled-components";
-
+import React, {useMemo, useState} from "react";
+import styled, {css} from "styled-components";
+import {
+  NameType,
+  ValueType
+} from "recharts/src/component/DefaultTooltipContent";
+import {Button, IconButton} from "@mui/material";
+import {OpenWith} from '@mui/icons-material';
+import {bool} from "three/examples/jsm/nodes/shadernode/ShaderNodeBaseElements";
 type ITableOptions = {
   id: number,
   store: string,
@@ -28,20 +34,11 @@ const PieChartComponent:React.FC<{
     body: ITableOptions[]
   }
 }> = (props) => {
-  const data =  [
-    {id:1, store: '1호기', price:23, count: 1, },
-    {id:2, store: '2호기', price:27, count: 5, },
-    {id:3, store: '3호기', price:49, count: 11, },
-    {id:4, store: '6호기', price:11, count: 20, },
-    {id:5, store: '튀김기', price:6, count: 1, },
-  ]
-  // const data = [
-  //   { name: 'Group A', value: 400 },
-  //   { name: 'Group B', value: 300 },
-  //   { name: 'Group C', value: 300 },
-  //   { name: 'Group D', value: 200 },
-  // ];
-  // return <ResponsiveContainer width={'70%'} height={'50%'}>
+  const handleEnlargeChart = () => {
+    setEnlarge(!enlarge)
+
+  }
+  const [enlarge, setEnlarge] = useState(false);
   const customLabel = (labelProps:PieLabelRenderProps | any ) => {
     const {innerRadius, outerRadius, cx, midAngle, cy, value} = labelProps
     const RADIAN = Math.PI / 180;
@@ -57,39 +54,94 @@ const PieChartComponent:React.FC<{
       {`${labelProps.value}(원)`}
     </text>
   }
-  return <CustomChartWrapper height={350}>
-    <PieChart  >
-      <Pie
-        data={props.data.body}
-        dataKey={'price'}
-        innerRadius={80}
-        label={customLabel}
-        labelLine={false}
-      >
+  const CustomTooltip = (tooltipProps:TooltipProps<ValueType, NameType>) => {
+    const {active, payload} = tooltipProps
+    if (active && payload && payload.length) {
+      return <TooltipWrapper>
         {
-          props.data.body.map((item, index) => (
-            <Cell key={`chart_${index}`} fill={COLOR[index]} />
+          props.data.body.map(item => (
+            <div className={'label'} key={`label_${item.id}`}>{`${item.store} : ${item.price}`}</div>
           ))
         }
-      </Pie>
-      <Legend
-        layout={'vertical'}
-        align={'right'}
-        verticalAlign={'middle'}
-        payload={
-          props.data.body.map((item, index) =>(
-            {value:item.store, type: 'rect', color:COLOR[index] }
-          ))
-        }
-        formatter={(value, entry) => (<span style={{color: '#000'}}>{value}</span>)}
-      />
-    </PieChart>
+        <span>위의 데이터는 정확하지 않습니다.</span>
+      </TooltipWrapper>
+    }
+    return null
+  }
+
+  return <CustomChartWrapper value={enlarge}>
+    <IconButton className={'enlarge_icon'} onClick={handleEnlargeChart}>
+      <OpenWith />
+    </IconButton>
+    <ResponsiveContainer aspect={1.5}>
+      <PieChart >
+        <Tooltip
+          content={<CustomTooltip />}
+          // payload={[{name:'123', value:123}]}
+        />
+        <Legend
+          layout={'vertical'}
+          align={'right'}
+          verticalAlign={'middle'}
+          payload={
+            props.data.body.map((item, index) =>(
+              {value:item.store, type: 'rect', color:COLOR[index] }
+            ))
+          }
+          formatter={(value, entry) => (<span style={{color: '#000'}}>{value}</span>)}
+        />
+
+        <Pie
+          data={props.data.body}
+          dataKey={'price'}
+          innerRadius={enlarge?180: 80}
+          // outerRadius={enlarge?100: 100}
+          label={customLabel}
+          labelLine={false}
+          nameKey={'store'}
+        >
+          {
+            props.data.body.map((item, index) => (
+              <Cell key={`chart_${index}`} fill={COLOR[index]} />
+            ))
+          }
+        </Pie>
+      </PieChart>
+    </ResponsiveContainer>
   </CustomChartWrapper>
-  // </ResponsiveContainer>
 }
 
 export default PieChartComponent
 
-const CustomChartWrapper = styled(ResponsiveContainer)`
-  height: 350px;
+const CustomChartWrapper = styled.div<{value: boolean}>`
+  width: 95%;
+  aspect-ratio: 1.5;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  
+  .enlarge_icon {
+    align-self: end;
+  };
+  ${props => props.value && css`
+    width: 90%;
+    background: #fff;
+    border: 1px solid #ddd;
+    position: fixed;
+    left: 50%;
+    top:50%;
+    transform: translate(-50%, -50%);
+    z-index: 9;
+    
+  `}
+  
+`
+const TooltipWrapper = styled.div`
+  padding: 8px 12px;
+  background: #fff;
+  border: 1px solid #ddd;
+  
+  span {
+    color: red;
+  }
 `

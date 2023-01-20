@@ -19,12 +19,16 @@ type ITableHead = {
   text: string
 }
 import {ArrowDropDown} from '@mui/icons-material';
+import {useNavigate, useNavigation,} from "react-router-dom";
+import styled, {css} from "styled-components";
 const List:React.FC<{
   data: {
     header: ITableHead[],
     body: ITableOptions[]
   }
 }> = (props) => {
+  const navigate = useNavigate()
+  // const navigation = useNavigation()
   const [sortKey, setSortKey] = useState({
     key:'id',
     sort: 'asc',
@@ -44,6 +48,7 @@ const List:React.FC<{
       return 0
     })
   }, [sortKey.sort])
+
   const handleSortData = (id:number) => {
     let key = Object.keys(props.data.body[0])[id - 1]
     let newSort = {
@@ -53,10 +58,15 @@ const List:React.FC<{
     }
     setSortKey(newSort)
   }
+  const handleClickTable = (options:ITableOptions) => {
+    console.log(options)
+    navigate(`?item=${options.store}`)
+    // console.log(navigation.location)
+  }
   return <>
     <Table>
       <TableHead>
-        <TableRow>
+        <CustomTableRow header={"true"}>
           { props.data.header.map((head, idx1) => (
             <TableCell key={`head_${head.id}`}>
               <TableSortLabel
@@ -70,20 +80,42 @@ const List:React.FC<{
             </TableCell>
             )
           )}
-        </TableRow>
+        </CustomTableRow>
       </TableHead>
       <TableBody>
         {
-          sortedTable
-            .map(options => <TableRow key={options.id}>
-             <TableCell>{options.id}</TableCell>
-             <TableCell>{options.store}</TableCell>
-             <TableCell>{options.price}</TableCell>
-             <TableCell>{options.count}</TableCell>
-           </TableRow>)
+          sortedTable.map((options,index)=> (
+              <CustomTableRow key={`tableRow_${options.id}`} onClick={() => handleClickTable(options)}>
+                {
+                  Object.entries(options).map(([keys, value],index) => (
+                    <TableCell key={`tableCell_${keys}_${options.id}`}>{value}</TableCell>
+                  ))
+                }
+              </CustomTableRow>
+          ))
         }
       </TableBody>
     </Table>
   </>
 }
 export default List
+
+const CustomTableRow = styled(TableRow)<{header?: string}>`
+  
+  &:nth-child(even) {
+    background: #f8ecd9;
+  }
+
+  &:hover {
+    background: #ddd;
+    cursor: pointer;
+  }
+  ${props => props.header === 'true' && css`
+    border-top: 2px solid #000;
+    border-bottom: 2px solid #000;
+    
+    &:hover {
+      background: inherit;
+    }
+  `}
+`
