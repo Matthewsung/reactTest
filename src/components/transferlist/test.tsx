@@ -5,8 +5,8 @@ import {
   DropResult
 } from "react-beautiful-dnd";
 import styled from "styled-components";
-import {Button} from "@mui/material";
-import {useEffect, useState} from "react";
+import {Button, ButtonGroup, Checkbox, FormControlLabel} from "@mui/material";
+import {useState} from "react";
 type IMainBox = {
   id: number,
   text: string
@@ -14,7 +14,8 @@ type IMainBox = {
 type IMoveBox = {
   id: number,
   text: string,
-  items: IMainBox[]
+  items: IMainBox[],
+  checked: boolean
 }
 const TestComponent = () => {
   const mainBox = [
@@ -29,30 +30,14 @@ const TestComponent = () => {
     {id: 9, text: 'text 9'},
     {id: 10, text: 'text 10'},
   ] as IMainBox[]
-  // const moveBox = [
-  //   {
-  //     id:1,
-  //     text: '박스 1',
-  //     items: [
-  //       {id: 1, text: 'text 1'},
-  //     ]
-  //   },
-  //   {
-  //     id:2,
-  //     text: '박스 2',
-  //     items: [
-  //       {id: 8, text: 'text 8'},
-  //       {id: 9, text: 'text 9'},
-  //     ]
-  //   },
-  // ] as IMoveBox[]
   const [moveBox, setMoveBox] = useState<IMoveBox[]>([
     {
       id:1,
       text: '박스 1',
       items: [
         {id: 1, text: 'text 1'},
-      ]
+      ],
+      checked:false
     },
     {
       id:2,
@@ -60,7 +45,8 @@ const TestComponent = () => {
       items: [
         {id: 8, text: 'text 8'},
         {id: 9, text: 'text 9'},
-      ]
+      ],
+      checked:true
     },
   ])
 
@@ -98,18 +84,39 @@ const TestComponent = () => {
     return  !check
   }
   const handleAddBox = () => {
+    const inputText = prompt('박스 이름 입력')
+    const checkDuplicate = moveBox.filter(value => value.text === inputText)
+    if(checkDuplicate.length) return alert('중복된 이름이 있습니다.')
+
     const init = {
       id: moveBox.length + 1,
-      text: `박스 ${moveBox.length + 1}`,
-      items: []
+      text:`${inputText}`,
+      items: [],
+      checked: false
     }
+
     const newMoveBox = [...moveBox, init]
     setMoveBox(newMoveBox)
   }
-  const handleDeleteBox = (index:number) => {
-    const newMoveBox = [...moveBox]
-    let filteredBox = newMoveBox.filter((box, idx) => idx !== index)
+  const handleDeleteBox = () => {
+    let filteredBox = moveBox.filter(box => !box.checked)
     setMoveBox(filteredBox)
+  }
+
+  const handleDuplicate = () => {
+    let newBox = moveBox.filter(box => box.checked)
+    if(!newBox.length) return alert('한개의 박스를 선택')
+    if(newBox.length > 1) return alert('하나만 선택해주세요')
+    console.log(newBox)
+    
+  }
+
+  const handleSetChecked = (checked:boolean, box:IMoveBox) => {
+    const index = box.id - 1
+    let newBox = [...moveBox]
+
+    newBox[index].checked = checked
+    setMoveBox(newBox)
   }
   return <TestWrapper>
 
@@ -118,8 +125,7 @@ const TestComponent = () => {
       <BodyBox>
         <div style={{width: '350px'}}>
           <TitleBox>
-            <span>기준 박스</span>
-            <Button variant={'outlined'} size={'small'} onClick={handleAddBox}>박스 추가</Button>
+            기준 박스
           </TitleBox>
           <MainBox>
             <Droppable droppableId={'mainBox'}>
@@ -152,16 +158,15 @@ const TestComponent = () => {
           </MainBox>
         </div>
         <div>
+          <Button variant={'outlined'} onClick={handleDuplicate}>복제</Button>
           {
             moveBox.map((box, index) => (
               <div key={`moveBox_${index}`} style={{width: '300px'}}>
                 <TitleBox>
-                  <span>
-                    {`옮길 박스 ${box.id}`}
-                  </span>
-                  <Button variant={'outlined'} onClick={() => handleDeleteBox(index)} size={'small'}>
-                    박스 삭제
-                  </Button>
+                  <FormControlLabel control={<Checkbox /> } label={`${box.text}`} checked={box.checked} onChange={(e, checked) => handleSetChecked(checked, box)}/>
+                  {/*<Button variant={'outlined'} onClick={() => handleDeleteBox(index)} size={'small'}>*/}
+                  {/*  박스 삭제*/}
+                  {/*</Button>*/}
                 </TitleBox>
                 <Droppable droppableId={`box_${box.id}`}>
                   {
@@ -175,15 +180,13 @@ const TestComponent = () => {
                                 {
                                   (provided1, snapshot1) => (
                                     <ItemBox {...provided1.draggableProps} {...provided1.dragHandleProps} ref={provided1.innerRef}>
-                                      <div className={'itemId'}>{item.id}</div>
-                                      <div className={'itemText'}>{item.text}</div>
+                                      <FormControlLabel control={<Checkbox />} label={item.text} className={'itemText'}/>
                                     </ItemBox>
                                   )
                                 }
                               </Draggable>
                             ) )
                           }
-
                         </MainBox>
                       </div>
                     )
@@ -192,6 +195,10 @@ const TestComponent = () => {
               </div>
               ))
             }
+          <ButtonGroup>
+            <Button variant={'outlined'} onClick={handleAddBox}>+</Button>
+            <Button variant={'outlined'} onClick={handleDeleteBox}>-</Button>
+          </ButtonGroup>
         </div>
 
       </BodyBox>
