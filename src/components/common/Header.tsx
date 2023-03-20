@@ -15,27 +15,21 @@ const HeaderComponent = () => {
 
   ]
 
-  return(
-    <Container
-      maxWidth="md"
-      sx={{
-        display: 'flex',
-        gap: '8px',
-        padding: '16px 0',
-        borderBottom: '1px solid #ddd',
-        flexWrap:'wrap'
-      }}
-    >
-    { menuName.map((menu, idx) => (
-      <Box component='div' key={`menuName_${idx}`}>
-        <Button variant="outlined">
-          <NavLink to={menu.path}>
-            {menu.name}
-          </NavLink>
-        </Button>
-      </Box>))
-    }
-    </Container>
+  return (
+    <>
+      {
+        menuName.map((menu, idx) => (
+          <Box component='div' key={`menuName_${idx}`} sx={{marginBottom: '4px'}}>
+            <Button variant="text" fullWidth sx={{justifyContent:"left"}}>
+              <NavLink to={menu.path}>
+                {menu.name}
+              </NavLink>
+            </Button>
+          </Box>)
+        )
+      }
+    </>
+
   )
 }
 
